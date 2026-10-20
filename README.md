@@ -1,12 +1,15 @@
 # SRL Discord Bridge
 
-A small self-hosted Cloudflare Worker used by SRL to save selected Discord messages into the user's local resource library and, when the user explicitly asks, check a saved Discord source for updates.
+[English](README.md) | [简体中文](README.zh-CN.md) | [隐私与数据处理说明](PRIVACY.md)
+
+A small self-hosted Cloudflare Worker used by SRL to save selected Discord messages into the user's local resource library.
 
 The Bridge is intentionally isolated from the SRL application. Each user deploys their own Worker and D1 database in their own Cloudflare account.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fjixiangruyi117%2FSRL-Discord-Bridge)
 
 ## What it does
+
 For Bot replies without a message Apps menu, copy the actual Discord attachment URL
 and run `/下载直链 链接:<download URL>`. This slash command uses the same paired resource
 queue and attachment deduplication as the message download command; it does not save
@@ -49,11 +52,6 @@ Discord Message Context Command
   → your Cloudflare Worker
   → short-lived one-time D1 handoff
   → your local SRL
-
-User taps “检查更新” in SRL
-  → your Cloudflare Worker
-  → bounded read-only Discord API check
-  → comparison / confirmation happens in your local SRL
 ```
 
 The Worker:
@@ -63,13 +61,9 @@ The Worker:
 - stores the normalized capture in D1 under a high-entropy one-time token;
 - expires handoffs after a short TTL;
 - allows the handoff to be consumed once by SRL;
-- performs a bounded, read-only source check only when SRL explicitly requests one;
-- does not persist source-refresh responses in D1;
 - does not act as a permanent Discord archive.
 
-For a thread/forum source, the refresh read is intentionally bounded and only returns messages relevant to SRL's source model: the starter, messages from the starter author, Bot/Webhook messages, and already-saved message IDs. It does not silently archive arbitrary participant comments.
-
-A user-installed Message Command can save the interaction snapshot even when this Bot is not a member of that community. Automatic refresh is different: it uses `DISCORD_BOT_TOKEN`, so the Bot must be in the guild and able to view the source channel. When that access is absent, the Worker reports the source as temporarily uncheckable instead of claiming that the post was deleted. SRL then uses manual refresh for that source: running the same Message Command again updates the existing local source instead of creating a duplicate.
+A user-installed Message Command receives the selected interaction snapshot even when the Bot is not a member of that community. To update saved content, run the save command on that message again. The Bridge provides no source-update checks or thread-history scan endpoints.
 
 ## Required values
 
@@ -87,8 +81,6 @@ The D1 binding name is fixed to `DB`.
 - `GET /health` — checks that the D1 `handoffs` table is queryable and reports whether each Discord variable is present (never returns secret values)
 - `GET /setup/status` — checks that the Bot Token is valid, verifies the configured Application ID and Public Key belong to that Discord App, and reports Message Command registration
 - `POST /setup/register` — registers the legacy/post/resource Message Commands and the pairing Slash Command
-- `POST /source/read` — authenticated, bounded, read-only source check used by SRL
-- `POST /source/messages/check` — checks a bounded batch of explicitly saved message IDs
 - `GET /handoff/:token` — one-time SRL handoff
 - `GET /open/:token` — opens SRL with the handoff token
 - `GET /handoff/:token/status` — reads the handoff receipt state
@@ -130,7 +122,17 @@ SRL also provides a browser-only Cloudflare deployment guide. It generates a Qui
 
 ## Privacy boundary
 
-This repository contains no SRL library data, no Discord credentials and no user content. Credentials are supplied by each user to their own Cloudflare deployment. Discord Message Context Command payloads are kept only long enough to complete the one-time handoff to the user's local SRL. Large payloads use multiple temporary D1 rows and are deleted under the same expiry and one-time-use rules. The Bridge can read up to two `.txt` attachments per message, at up to 1 MB each and 2 MB total per request, from Discord's HTTPS CDN; the client keeps that text in the local source record. Other attachments remain links. Source-refresh reads are initiated by the user, returned directly to SRL, and are not stored by the Bridge.
+Read the [privacy and data handling notice](PRIVACY.md) before configuring an instance.
+It covers personal self-hosting, Cloudflare transit, local copies, revisions,
+backups and deletion. It does not require publishing your real name or personal
+account. Review it against your deployment, publish an accurate policy at a public
+URL, and enter that URL in your own Discord App's **Privacy Policy URL** field.
+If you serve other users, include a working private data-request contact and an
+accessible policy link in your app; the upstream template alone cannot identify
+or manage your instance. Never publish messages, credentials or deletion requests
+containing private data with the policy.
+
+This repository contains no SRL library data, no Discord credentials and no user content. Credentials are supplied by each user to their own Cloudflare deployment. Discord Message Context Command payloads are kept only long enough to complete the one-time handoff to the user's local SRL. Large payloads use multiple temporary D1 rows and are deleted under the same expiry and one-time-use rules. The Bridge can read up to two `.txt` attachments per message, at up to 1 MB each and 2 MB total per request, from Discord's HTTPS CDN; the client keeps that text in the local source record. Other attachments remain links.
 
 Paired post captures and resource task metadata expire after seven days. Library
 endpoint secrets are stored as hashes in D1. Downloaded binary files and local
@@ -192,14 +194,3 @@ the Discord commands again. Deploying the Worker alone does not register command
 with Discord. Update the Android shell before enabling native resource intake.
 
 This repository does not provide a shared production Worker. Deploy the Worker to your own Cloudflare account and configure your Worker root URL in SRL.
-
-Inside a forum/media post, `/保存首楼帖子` saves the starter without scrolling;
-`/保存所有已标注信息` saves the post's pinned messages (up to 200 per invocation).
-Both commands require an existing pairing and Bot channel/history access plus
-Message Content access. Pins use the paginated Discord pins API, not a scan of
-ordinary comments. Delivery reuses the post inbox and its deduplication. If a
-batch fails partway, its receipt reports the accepted count; rerunning reuses
-accepted snapshots. A changed pairing stops the batch instead of routing later
-messages to another library. Register commands again after deploying this update.
-SRL's thread navigation shows saved pinned snapshots under “已标注信息”; legacy
-snapshots need resaving or a successful update check to learn their pin state.

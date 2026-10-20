@@ -19,7 +19,6 @@ import {
   interactionUserId,
   pairDiscordUser,
 } from './DiscordInbox'
-import { discordJson, handleSavedMessageCheck, handleSourceRead } from './DiscordSourceReader'
 import {
   cleanupResources,
   createResourceJobs,
@@ -28,6 +27,7 @@ import {
 } from './DiscordResources'
 import {
   CORS_HEADERS,
+  discordJson,
   authorizedSetup,
   bytesToBase64Url,
   escapeHtml,
@@ -331,7 +331,14 @@ async function registerMessageCommand(env: Env): Promise<void> {
       name: PAIR_COMMAND_NAME,
       type: 1,
       description: '将帖子和资源下载任务投递到当前资源库',
-      options: [{ name: 'code', type: 3, description: '资源库生成的一次性配对码', required: true }],
+      options: [
+        {
+          name: 'code',
+          type: 3,
+          description: '资源库生成的一次性配对码',
+          required: true,
+        },
+      ],
     },
   ]
   for (const command of commands) {
@@ -735,7 +742,10 @@ async function handleInteraction(
     } catch {
       return json({
         type: 4,
-        data: { content: 'Discord 未提供完整的命令身份或目标消息，请重新操作。', flags: 64 },
+        data: {
+          content: 'Discord 未提供完整的命令身份或目标消息，请重新操作。',
+          flags: 64,
+        },
       })
     }
   }
@@ -854,7 +864,9 @@ export default {
         })
       } catch (error) {
         return json(
-          { error: error instanceof Error ? error.message : 'command_status_failed' },
+          {
+            error: error instanceof Error ? error.message : 'command_status_failed',
+          },
           { status: 502 },
         )
       }
@@ -882,18 +894,12 @@ export default {
         })
       } catch (error) {
         return json(
-          { error: error instanceof Error ? error.message : 'command_registration_failed' },
+          {
+            error: error instanceof Error ? error.message : 'command_registration_failed',
+          },
           { status: 502 },
         )
       }
-    }
-
-    if (url.pathname === '/source/read' && request.method === 'POST') {
-      return handleSourceRead(request, env)
-    }
-
-    if (url.pathname === '/source/messages/check' && request.method === 'POST') {
-      return handleSavedMessageCheck(request, env)
     }
 
     if (url.pathname === '/interactions' && request.method === 'POST') {
@@ -923,7 +929,11 @@ export default {
           'SELECT created_at, expires_at, consumed_at FROM handoffs WHERE token_hash = ?',
         )
           .bind(await sha256Hex(token))
-          .first<{ created_at: number; expires_at: number; consumed_at: number | null }>()
+          .first<{
+            created_at: number
+            expires_at: number
+            consumed_at: number | null
+          }>()
         response = json(
           row
             ? {
@@ -959,7 +969,7 @@ export default {
 
     if (url.pathname === '/' && request.method === 'GET') {
       return html(
-        `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SRL Discord Bridge</title></head><body style="font-family:system-ui,sans-serif;max-width:680px;margin:40px auto;padding:0 20px;color:#173641"><h1>SRL Discord Bridge</h1><p>这个 Worker 只负责 Discord 消息的短期 handoff 与用户主动发起的只读来源检查，不是资源永久仓库。</p><p>Interactions Endpoint URL：</p><code style="overflow-wrap:anywhere">${escapeHtml(`${url.origin}/interactions`)}</code></body></html>`,
+        `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SRL Discord Bridge</title></head><body style="font-family:system-ui,sans-serif;max-width:680px;margin:40px auto;padding:0 20px;color:#173641"><h1>SRL Discord Bridge</h1><p>这个 Worker 只负责用户主动选择的 Discord 帖子与资源的临时传输，不是资源永久仓库。</p><p>Interactions Endpoint URL：</p><code style="overflow-wrap:anywhere">${escapeHtml(`${url.origin}/interactions`)}</code></body></html>`,
       )
     }
 

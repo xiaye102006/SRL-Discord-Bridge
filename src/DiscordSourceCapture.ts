@@ -1,4 +1,4 @@
-import { DiscordCaptureContext, DiscordInteraction, validSnowflake } from './DiscordSourceProtocol'
+import { DiscordInteraction, validSnowflake } from './DiscordSourceProtocol'
 
 export const THREAD_CHANNEL_TYPES = new Set([10, 11, 12])
 
@@ -151,7 +151,9 @@ async function readTextAttachment(
 
 export async function addTextAttachmentContent(
   capture: Record<string, unknown>,
-  budget: { remainingBytes: number } = { remainingBytes: MAX_TEXT_ATTACHMENT_BYTES_PER_READ },
+  budget: { remainingBytes: number } = {
+    remainingBytes: MAX_TEXT_ATTACHMENT_BYTES_PER_READ,
+  },
 ): Promise<Record<string, unknown>> {
   const attachments = Array.isArray(capture.attachments)
     ? capture.attachments.map((value) => asRecord(value) ?? {})
@@ -220,49 +222,6 @@ export function buildCapture(interaction: DiscordInteraction): Record<string, un
       : {}),
     ...(threadId && currentChannelName ? { title: currentChannelName } : {}),
     forumTags: readForumTags(channel),
-    embeds: Array.isArray(message.embeds)
-      ? message.embeds.filter((value) => Boolean(asRecord(value)))
-      : [],
-    attachments: normalizeAttachments(message.attachments),
-  }
-}
-
-export function buildCaptureFromMessage(
-  message: Record<string, unknown>,
-  context: DiscordCaptureContext,
-): Record<string, unknown> | undefined {
-  const messageId = asString(message.id)
-  if (!validSnowflake(messageId)) return undefined
-  const author = asRecord(message.author)
-  const authorId = asString(author?.id)
-  const authorName =
-    asString(author?.global_name) || asString(author?.username) || asString(message.author_name)
-  if (!validSnowflake(authorId) || !authorName) return undefined
-  const authorBot = author?.bot === true || Boolean(asString(message.webhook_id))
-  const guildPath = context.guildId ?? '@me'
-  const canonicalUrl = `https://discord.com/channels/${encodeURIComponent(guildPath)}/${encodeURIComponent(context.channelId)}/${encodeURIComponent(messageId)}`
-  const isStarter = messageId === context.starterMessageId
-  return {
-    ...(context.guildId ? { guildId: context.guildId } : {}),
-    ...(context.guildName ? { guildName: context.guildName } : {}),
-    channelId: context.channelId,
-    ...(context.channelName ? { channelName: context.channelName } : {}),
-    ...(context.threadId ? { threadId: context.threadId } : {}),
-    starterMessageId: context.starterMessageId,
-    isStarter,
-    messageId,
-    canonicalUrl,
-    authorId,
-    authorName,
-    authorBot,
-    ...(typeof message.pinned === 'boolean' ? { pinned: message.pinned } : {}),
-    content: typeof message.content === 'string' ? message.content : '',
-    timestamp: asString(message.timestamp) || new Date().toISOString(),
-    ...(asString(message.edited_timestamp)
-      ? { editedTimestamp: asString(message.edited_timestamp) }
-      : {}),
-    ...(isStarter && context.title ? { title: context.title } : {}),
-    forumTags: isStarter ? context.forumTags : [],
     embeds: Array.isArray(message.embeds)
       ? message.embeds.filter((value) => Boolean(asRecord(value)))
       : [],

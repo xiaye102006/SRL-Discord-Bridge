@@ -33,6 +33,15 @@ Android 已领取的资源使用现有 WorkManager 下载通道；Web/iOS 可以
 
 开始前请阅读[隐私与数据处理说明](PRIVACY.md)，核对自己部署的数据范围、日志和备份设置。公开隐私说明不等于公开 Bot 或保存的数据，也不要求公开真名、私人邮箱或个人账号。将符合实际的说明发布到公开可读的网址，并在自己的 Discord App 中填写 **Privacy Policy URL**；以后向他人提供服务时，还需要有效的私密数据请求渠道和应用内入口。
 
+### 先填写 Discord 隐私政策
+
+1. 打开[隐私与数据处理说明](PRIVACY.md)，确认它与你的个人自用部署、日志和备份设置一致。
+2. 默认实现适用时，复制这个公开链接：`https://github.com/jixiangruyi117/SRL-Discord-Bridge/blob/main/PRIVACY.md`。修改过数据处理方式时，先发布符合实际的说明，再使用自己的公开链接；向他人提供服务前还需补充有效的私密数据请求渠道。
+3. 进入 Discord Developer Portal，选择与 Bot Token、Application ID 对应的**同一个应用**，打开 **General Information**。
+4. 将链接粘贴到 **Privacy Policy URL**，点击 **Save Changes（保存更改）**，确认保存成功。它是隐私说明链接；Worker 的 `/interactions` 地址另填到 **Interactions Endpoint URL**。
+
+公开隐私说明不会公开你的 Bot 或本地收藏，不要上传消息、数据库或凭据。已经部署的用户也可以直接补填这个字段，无需为此重新部署、重装 Bot 或重新配对。
+
 ### 方式一：从 Git 仓库部署
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fjixiangruyi117%2FSRL-Discord-Bridge)

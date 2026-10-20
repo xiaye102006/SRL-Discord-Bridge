@@ -53,6 +53,12 @@ SRL Discord Bridge 用于把用户主动选择的 Discord 帖子和资源送入�
 
 个人自用实例核对本说明符合实际后，将其发布到无需登录即可阅读的稳定页面，并在自己的 Discord Developer Portal 应用中填写 Privacy Policy URL。可以使用自己公开仓库中的本文件页面，或另行托管；无需发布数据库、消息或凭据。SRL 的“功能 → 收件箱 → 连接设置”提供上游说明入口，部署者有自己的政策时应让使用者也能方便找到。
 
+1. 核对本说明与你的版本、日志和备份设置一致。默认实现适用时，可使用 `https://github.com/jixiangruyi117/SRL-Discord-Bridge/blob/main/PRIVACY.md`；有差异时先发布自己的适用说明。
+2. 打开 Discord Developer Portal，选择与 Bot Token、Application ID 对应的同一个应用，进入 **General Information**。
+3. 在 **Privacy Policy URL** 粘贴公开说明链接，点击 **Save Changes（保存更改）** 并确认保存成功。不要将 Worker 的 `/interactions` 地址填到这里，交互地址有单独的 **Interactions Endpoint URL** 字段。
+
+补填隐私政策不需要重新部署 Worker、重新安装 Bot 或重新配对。向他人提供服务前，还需按上文补充有效的数据请求渠道。
+
 修改版、对外服务或使用额外日志/备份的实例，需要先更新自己的政策。公开说明与 Bot 是否公开安装、数据是否公开是不同的设置。
 
 相关规则：[Discord 开发者服务条款第5节](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service)、[Discord 开发者政策](https://support-dev.discord.com/hc/en-us/articles/8563934450327-Discord-Developer-Policy)。

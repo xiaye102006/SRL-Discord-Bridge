@@ -75,6 +75,15 @@ Cloudflare deployment asks for the Discord values belonging to **your own Discor
 
 The D1 binding name is fixed to `DB`.
 
+## Configure the privacy policy
+
+1. Read [PRIVACY.md](PRIVACY.md) and verify it matches your personal self-hosted instance, including logging and backups.
+2. For the unchanged default implementation, use `https://github.com/jixiangruyi117/SRL-Discord-Bridge/blob/main/PRIVACY.md`. If your data handling differs, publish an accurate policy and use its public URL. Before serving other users, add an effective private data-request channel.
+3. In Discord Developer Portal, select the **same application** that owns your Application ID and Bot Token, then open **General Information**.
+4. Paste the policy link into **Privacy Policy URL**, click **Save Changes**, and confirm it saved. The Worker URL ending in `/interactions` belongs in the separate **Interactions Endpoint URL** field.
+
+Publishing the policy does not publish your Bot or local collection. Do not upload messages, databases or credentials. Existing deployments can add this field without redeploying, reinstalling the Bot or pairing again.
+
 ## Routes
 
 - `POST /interactions` — Discord Interactions Endpoint

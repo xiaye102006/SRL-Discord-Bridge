@@ -3,9 +3,7 @@
   "name": "srl-discord-source-bridge",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-26",
-  "triggers": {
-    "crons": ["0 * * * *"]
-  },
+  "keep_vars": true,
   "d1_databases": [
     {
       "binding": "DB",
@@ -15,8 +13,8 @@
     }
   ],
   "vars": {
-    "HANDOFF_TTL_SECONDS": "1200",
-    "APPLICATION_ID": "1562862104577445919",
-    "PUBLIC_KEY": "c7391c2940ebf742569c4f54c9796f26a696bf263f3db11ac07a3cbe5119f867"
+    "DISCORD_APPLICATION_ID": "1562862104577445919",
+    "DISCORD_PUBLIC_KEY": "c7391c2940ebf742569c4f54c9796f26a696bf263f3db11ac07a3cbe5119f867",
+    "HANDOFF_TTL_SECONDS": "1200"
   }
 }

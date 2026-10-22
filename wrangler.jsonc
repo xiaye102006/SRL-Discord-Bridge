@@ -8,7 +8,7 @@
     {
       "binding": "DB",
       "database_name": "srl-discord-source-handoff",
-      "database_id": "83ea4a8e-b266-49bb-b071-8f7005b36ce6",
+      "database_id": "17fa7a67-95ad-4ef4-a5cd-43ea293c243a",
       "migrations_dir": "migrations"
     }
   ],

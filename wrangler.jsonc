@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "srl-discord-source-bridge",
+  "name": "srl-discord-bridge",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-26",
   "keep_vars": true,

@@ -4,16 +4,19 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-08-26",
   "triggers": {
-    "crons": ["0 * * * *"],
+    "crons": ["0 * * * *"]
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "srl-discord-source-handoff",
-      "migrations_dir": "migrations",
-    },
+      "database_id": "83ea4a8e-b266-49bb-b071-8f7005b36ce6",
+      "migrations_dir": "migrations"
+    }
   ],
   "vars": {
     "HANDOFF_TTL_SECONDS": "1200",
-  },
+    "APPLICATION_ID": "1562862104577445919",
+    "PUBLIC_KEY": "c7391c2940ebf742569c4f54c9796f26a696bf263f3db11ac07a3cbe5119f867"
+  }
 }
